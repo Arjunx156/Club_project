@@ -171,6 +171,54 @@ body{
 }
 .modal-overlay.open{display:flex;pointer-events:all;}
 
+/* ── AUTH CARD (login/signup) ── */
+.auth-card{
+  background: #0b0e1a;
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 24px;
+  padding: 44px 40px 36px;
+  width: 100%;
+  max-width: 420px;
+  position: relative;
+  box-shadow: 0 0 0 1px rgba(99,102,241,0.08),
+              0 40px 80px rgba(0,0,0,0.7),
+              0 0 80px rgba(99,102,241,0.08);
+  animation: authCardIn 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+
+@keyframes authCardIn {
+  from { opacity:0; transform: translateY(20px) scale(0.97); }
+  to   { opacity:1; transform: translateY(0) scale(1); }
+}
+
+.auth-card-header { text-align: center; margin-bottom: 28px; }
+.auth-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+  color: #fff;
+}
+.auth-sub { font-size: 14px; color: var(--muted2); margin: 0; }
+
+.auth-close {
+  position: absolute;
+  top: 18px; right: 18px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: var(--muted2);
+  border-radius: 8px;
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+.auth-close:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+
+
+
 .modal{
   background:#0c0f1e;
   border:1px solid var(--border2);

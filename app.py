@@ -22,7 +22,10 @@ CORS(app)
 # DB config — reads from DATABASE_URL environment variable
 # In Vercel dashboard: Settings > Environment Variables > add DATABASE_URL
 # Format: postgresql://postgres:[PASSWORD]@db.YOURPROJECTREF.supabase.co:5432/postgres
-DATABASE_URL = os.environ.get("DATABASE_URL", "")
+DATABASE_URL = os.environ.get(
+    "DATABASE_URL",
+    "postgresql://postgres:Arjun%40156123@db.ocvctvycniapdeouekyi.supabase.co:5432/postgres"
+)
 
 def get_db():
     conn = psycopg2.connect(DATABASE_URL)

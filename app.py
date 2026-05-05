@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
-import mysql.connector
+import psycopg2
+import psycopg2.extras
+import os
 import json
 import math
 import re
@@ -17,17 +19,16 @@ except ImportError:
 app = Flask(__name__)
 CORS(app)
 
-# DB config
-DB_CONFIG = {
-    "host": "localhost",
-    "user": "root",
-    "password": "Arjun@156",
-    "database": "ai_ds_club",
-    "auth_plugin": "mysql_native_password"
-}
+# DB config — reads from environment variable set in Vercel dashboard
+# Set DATABASE_URL in Vercel: postgresql://postgres:[PASSWORD]@ocvctvycniapdeoukyi.supabase.co:5432/postgres
+DATABASE_URL = os.environ.get(
+    "DATABASE_URL",
+    "postgresql://postgres:Arjun@156@ocvctvycniapdeoukyi.supabase.co:5432/postgres"
+)
 
 def get_db():
-    return mysql.connector.connect(**DB_CONFIG)
+    conn = psycopg2.connect(DATABASE_URL)
+    return conn
 
 # =========================
 # LOCAL AI ALGORITHMS
@@ -65,7 +66,7 @@ def home():
 def get_events():
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("""
             SELECT E.*,
             (SELECT COUNT(*) FROM PARTICIPATION P WHERE P.event_id = E.event_id) as registered
@@ -101,7 +102,7 @@ def get_events():
 def get_resources():
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("""
             SELECT R.*, M.name as added_by_name
             FROM RESOURCE R
@@ -132,7 +133,7 @@ def get_resources():
 def add_event():
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         data = request.json
         cursor.execute("""
             INSERT INTO EVENT (title, description, date, time, venue, category, seats)
@@ -160,7 +161,7 @@ def add_event():
 def delete_event(event_id):
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("DELETE FROM PARTICIPATION WHERE event_id = %s", (event_id,))
         cursor.execute("DELETE FROM EVENT WHERE event_id = %s", (event_id,))
         db.commit()
@@ -178,7 +179,7 @@ def delete_event(event_id):
 def update_event(event_id):
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         data = request.json
         cursor.execute("""
             UPDATE EVENT SET title=%s, description=%s, date=%s, time=%s,
@@ -199,7 +200,7 @@ def update_event(event_id):
 def add_resource():
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         data = request.json
         cursor.execute("""
             INSERT INTO RESOURCE (title, type, link, tags, added_by, download_count)
@@ -225,7 +226,7 @@ def add_resource():
 def delete_resource(resource_id):
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("DELETE FROM RESOURCE WHERE resource_id = %s", (resource_id,))
         db.commit()
         cursor.close()
@@ -241,7 +242,7 @@ def delete_resource(resource_id):
 def track_download(resource_id):
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("""
             UPDATE RESOURCE SET download_count = download_count + 1
             WHERE resource_id = %s
@@ -260,7 +261,7 @@ def track_download(resource_id):
 def register():
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         data = request.json
         member_id = data.get('member_id')
         event_id = data.get('event_id')
@@ -310,7 +311,7 @@ def register():
 def my_registrations(member_id):
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("""
             SELECT E.event_id, E.title, E.date, E.time, E.venue, E.category, P.registered_at, P.status
             FROM PARTICIPATION P
@@ -344,7 +345,7 @@ def my_registrations(member_id):
 def login():
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         data = request.json
         email = data.get('email')
         password = data.get('password')
@@ -381,7 +382,7 @@ def login():
 def get_profile(member_id):
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("SELECT * FROM MEMBER WHERE member_id = %s", (member_id,))
         member = cursor.fetchone()
 
@@ -416,7 +417,7 @@ def get_profile(member_id):
 def update_profile():
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         data = request.json
         cursor.execute("""
             UPDATE MEMBER SET bio = %s, subcommittee = %s
@@ -436,7 +437,7 @@ def update_profile():
 def get_announcements():
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("""
             SELECT A.*, M.name as created_by_name
             FROM ANNOUNCEMENT A
@@ -466,7 +467,7 @@ def get_announcements():
 def add_announcement():
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         data = request.json
         cursor.execute("""
             INSERT INTO ANNOUNCEMENT (title, content, created_by)
@@ -486,7 +487,7 @@ def add_announcement():
 def get_analytics():
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
         cursor.execute("SELECT COUNT(*) as cnt FROM MEMBER")
         total_members = cursor.fetchone()['cnt']
@@ -570,7 +571,7 @@ def ai_chat():
         
         if has_genai:
             db = get_db()
-            cursor = db.cursor(dictionary=True)
+            cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
             cursor.execute("SELECT title, date, venue, category, seats FROM EVENT")
             events = cursor.fetchall()
             cursor.execute("SELECT title, tags, download_count FROM RESOURCE")
@@ -635,7 +636,7 @@ def generate_description():
 def get_recommendations(member_id):
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 
         cursor.execute("SELECT * FROM MEMBER WHERE member_id = %s", (member_id,))
         member = cursor.fetchone()
@@ -703,7 +704,7 @@ def get_recommendations(member_id):
 def get_insights():
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         
         cursor.execute("SELECT E.title, COUNT(P.member_id) as registrations FROM EVENT E LEFT JOIN PARTICIPATION P ON E.event_id = P.event_id GROUP BY E.event_id ORDER BY registrations DESC LIMIT 1")
         top_event = cursor.fetchone()
@@ -744,7 +745,7 @@ def ai_search():
         q_keys = get_keywords(query)
         
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("SELECT event_id, title, description, category, date, venue FROM EVENT")
         events = cursor.fetchall()
         cursor.execute("SELECT resource_id, title, type, tags, link FROM RESOURCE")
@@ -785,7 +786,7 @@ def ai_search():
 def delete_announcement(announcement_id):
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("DELETE FROM ANNOUNCEMENT WHERE announcement_id = %s", (announcement_id,))
         db.commit()
         cursor.close()
@@ -801,7 +802,7 @@ def delete_announcement(announcement_id):
 def get_leaderboard():
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         
         # Calculate points: 10 per event attended, 20 per resource, 2 per download
         cursor.execute("""
@@ -837,7 +838,7 @@ def get_leaderboard():
 def submit_feedback():
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         data = request.json
         member_id = data.get('member_id')
         event_id = data.get('event_id')
@@ -866,7 +867,7 @@ def submit_feedback():
 def update_announcement(announcement_id):
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         data = request.json
         cursor.execute(
             "UPDATE ANNOUNCEMENT SET title=%s, content=%s WHERE announcement_id=%s",
@@ -883,7 +884,7 @@ def update_announcement(announcement_id):
 def get_resource_tags():
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("SELECT DISTINCT tags FROM RESOURCE WHERE tags IS NOT NULL")
         rows = cursor.fetchall()
         cursor.close(); db.close()
@@ -896,7 +897,7 @@ def get_resource_tags():
 def request_membership():
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         data = request.json
         cursor.execute("""
             INSERT INTO MEMBER (name, year, role, email, password, subcommittee, approved)
@@ -912,7 +913,7 @@ def request_membership():
 def pending_members():
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("SELECT member_id, name, email, year, subcommittee FROM MEMBER WHERE approved=0")
         rows = cursor.fetchall()
         cursor.close(); db.close()
@@ -924,7 +925,7 @@ def pending_members():
 def approve_member(member_id):
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("UPDATE MEMBER SET approved=1 WHERE member_id=%s", (member_id,))
         db.commit()
         cursor.close(); db.close()
@@ -936,7 +937,7 @@ def approve_member(member_id):
 def update_resource(resource_id):
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         data = request.json
         cursor.execute("""
             UPDATE RESOURCE SET title=%s, tags=%s, type=%s, link=%s
@@ -952,7 +953,7 @@ def update_resource(resource_id):
 def unregister():
     try:
         db = get_db()
-        cursor = db.cursor(dictionary=True)
+        cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         data = request.json
         member_id = data.get('member_id')
         event_id = data.get('event_id')
@@ -993,7 +994,7 @@ def unregister():
 @app.route('/projects', methods=['GET'])
 def get_projects():
     try:
-        db = get_db(); cursor = db.cursor(dictionary=True)
+        db = get_db(); cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("""
             SELECT P.*, M.name AS author,
                    (SELECT COUNT(*) FROM PROJECT_LIKE L WHERE L.project_id = P.project_id) AS likes
@@ -1013,7 +1014,7 @@ def get_projects():
 def create_project():
     try:
         data = request.json
-        db = get_db(); cursor = db.cursor(dictionary=True)
+        db = get_db(); cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("""
             INSERT INTO PROJECT (member_id, title, description, tags, tech_stack, github_link, demo_link)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
@@ -1031,7 +1032,7 @@ def like_project(project_id):
     try:
         data = request.json
         member_id = data.get('member_id')
-        db = get_db(); cursor = db.cursor(dictionary=True)
+        db = get_db(); cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("SELECT 1 FROM PROJECT_LIKE WHERE member_id=%s AND project_id=%s", (member_id, project_id))
         existing = cursor.fetchone()
         if existing:
@@ -1079,7 +1080,7 @@ def delete_project(project_id):
 @app.route('/team_requests', methods=['GET'])
 def get_team_requests():
     try:
-        db = get_db(); cursor = db.cursor(dictionary=True)
+        db = get_db(); cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("""
             SELECT T.*, M.name AS author
             FROM TEAM_REQUEST T
@@ -1115,7 +1116,7 @@ def toggle_team_status(request_id):
     try:
         data = request.json or {}
         member_id = data.get('member_id')
-        db = get_db(); cursor = db.cursor(dictionary=True)
+        db = get_db(); cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("SELECT status FROM TEAM_REQUEST WHERE request_id=%s AND member_id=%s", (request_id, member_id))
         row = cursor.fetchone()
         if not row:

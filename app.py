@@ -52,13 +52,10 @@ def tf_idf_similarity(query_keywords, document_keywords):
 # =========================
 # SERVE FRONTEND
 # =========================
-@app.route('/portal')
-def portal():
-    return render_template('index.html')
-
 @app.route('/')
+@app.route('/portal')
 def home():
-    return "AI & DS Club Backend Running 🚀"
+    return render_template('index.html')
 
 # =========================
 # GET EVENTS

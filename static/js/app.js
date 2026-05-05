@@ -77,6 +77,19 @@ async function doLogin(){
     });
     const data = await res.json();
     if(!res.ok){ err.textContent = data.message; err.style.display = 'block'; return; }
+
+    // ── Enforce tab/role match ──
+    if(loginRole === 'core' && data.role !== 'core'){
+      err.textContent = 'These are not admin credentials. Please use the Member tab.';
+      err.style.display = 'block';
+      return;
+    }
+    if(loginRole === 'member' && data.role === 'core'){
+      err.textContent = 'Admin accounts must sign in via the Admin tab.';
+      err.style.display = 'block';
+      return;
+    }
+
     err.style.display = 'none';
     currentUser = {...data};
     localStorage.setItem('currentUser', JSON.stringify(currentUser));

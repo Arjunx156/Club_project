@@ -18,11 +18,23 @@ window.onload = async () => {
   await loadAnnouncements();
   updateStats();
   
-  // Show landing page initially
   const lp = document.getElementById('landing-page');
   const dl = document.getElementById('dashboard-layout');
-  if(lp) lp.style.display = 'block';
-  if(dl) dl.style.display = 'none';
+  
+  const savedUser = localStorage.getItem('currentUser');
+  if (savedUser) {
+    currentUser = JSON.parse(savedUser);
+    updateUserUI();
+    if(lp) lp.style.display = 'none';
+    if(dl) dl.style.display = 'flex';
+    showPage('home');
+    loadDashboardData();
+    await loadRecommendations();
+    await loadAnnouncements(); 
+  } else {
+    if(lp) lp.style.display = 'block';
+    if(dl) dl.style.display = 'none';
+  }
 };
 
 // ============================================================
@@ -59,6 +71,7 @@ async function doLogin(){
     if(!res.ok){ err.textContent = data.message; err.style.display = 'block'; return; }
     err.style.display = 'none';
     currentUser = {...data};
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
     closeLogin();
     updateUserUI();
     
@@ -95,6 +108,7 @@ function handleUserClick(){
   if(currentUser){
     if(confirm(`Sign out as ${currentUser.name}?`)){
       currentUser = null;
+      localStorage.removeItem('currentUser');
       document.getElementById('userAvatar').className = 'user-avatar avatar-guest';
       document.getElementById('userAvatar').textContent = '?';
       document.getElementById('userName').textContent = 'Guest';

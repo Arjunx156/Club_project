@@ -26,7 +26,6 @@ body{
   color:var(--text);
   min-height:100vh;
   overflow-x:hidden;
-  zoom: 0.8;
 }
 
 ::-webkit-scrollbar{width:4px;}
@@ -46,7 +45,7 @@ body{
   66%{transform:translate(-20px,20px) scale(0.94);}
 }
 
-.layout{display:flex;min-height:100vh;position:relative;z-index:1;}
+.layout{display:flex;min-height:100vh;position:relative;z-index:1;zoom:0.8;}
 
 .sidebar{
   width:260px;
@@ -780,12 +779,6 @@ body{
   position: relative;
   z-index: 10;
   background: var(--bg);
-  zoom: 1.25; /* Counteracts body zoom: 0.8 to make this 100% scale */
-}
-
-/* Apply zoom to auth modals without breaking their fixed positioning or display toggle */
-.modal-overlay.auth-overlay {
-  zoom: 1.25;
 }
 
 .top-nav {

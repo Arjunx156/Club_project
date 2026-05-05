@@ -158,30 +158,7 @@
     </div>
   </div>
 
-  <!-- CHATBOT -->
-  <button class="chatbot-btn" onclick="toggleChatbot()" title="Ask AI Assistant">🤖</button>
-  <div class="chatbot-panel" id="chatbotPanel">
-    <div class="chatbot-header">
-      <div class="chatbot-avatar">🤖</div>
-      <div>
-        <div class="chatbot-name">Club AI Assistant</div>
-        <div class="chatbot-status"><span>●</span> Online</div>
-      </div>
-      <button class="chatbot-close" onclick="toggleChatbot()">✕</button>
-    </div>
-    <div class="chatbot-messages" id="chatMessages">
-      <div class="chat-msg">
-        <div class="chat-avatar-small">🤖</div>
-        <div class="chat-bubble bot">Hi! 👋 I'm your AI assistant. Ask me about events, resources, your registrations,
-          or anything about the club!</div>
-      </div>
-    </div>
-    <div class="chatbot-input-area">
-      <input class="chatbot-input" id="chatInput" placeholder="Ask anything..."
-        onkeydown="if(event.key==='Enter')sendChat()">
-      <button class="chatbot-send" onclick="sendChat()">➤</button>
-    </div>
-  </div>
+
 
   <!-- FEEDBACK MODAL -->
   <div class="modal-overlay" id="feedbackModal">
@@ -490,6 +467,30 @@
 
   <!-- LAYOUT -->
   <div id="dashboard-layout" class="layout">
+    <!-- CHATBOT -->
+    <button class="chatbot-btn" onclick="toggleChatbot()" title="Ask AI Assistant">🤖</button>
+    <div class="chatbot-panel" id="chatbotPanel">
+      <div class="chatbot-header">
+        <div class="chatbot-avatar">🤖</div>
+        <div>
+          <div class="chatbot-name">Club AI Assistant</div>
+          <div class="chatbot-status"><span>●</span> Online</div>
+        </div>
+        <button class="chatbot-close" onclick="toggleChatbot()">✕</button>
+      </div>
+      <div class="chatbot-messages" id="chatMessages">
+        <div class="chat-msg">
+          <div class="chat-avatar-small">🤖</div>
+          <div class="chat-bubble bot">Hi! 👋 I'm your AI assistant. Ask me about events, resources, your registrations,
+            or anything about the club!</div>
+        </div>
+      </div>
+      <div class="chatbot-input-area">
+        <input class="chatbot-input" id="chatInput" placeholder="Ask anything..."
+          onkeydown="if(event.key==='Enter')sendChat()">
+        <button class="chatbot-send" onclick="sendChat()">➤</button>
+      </div>
+    </div>
 
     <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">

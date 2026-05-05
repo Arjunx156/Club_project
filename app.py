@@ -11,8 +11,10 @@ from collections import Counter
 has_genai = False
 try:
     from google import genai
-    genai_client = genai.Client(api_key="AIzaSyBob26_v7k2NNQcGO-AxoCbZVhAHAtr5Qc")
-    has_genai = True
+    _api_key = os.environ.get("GEMINI_API_KEY", "")
+    if _api_key:
+        genai_client = genai.Client(api_key=_api_key)
+        has_genai = True
 except ImportError:
     print("google-genai not installed. Falling back to local AI.")
 
@@ -28,8 +30,7 @@ DATABASE_URL = os.environ.get(
 )
 
 def get_db():
-    conn = psycopg2.connect(DATABASE_URL)
-    return conn
+    return psycopg2.connect(DATABASE_URL, sslmode='require', connect_timeout=5)
 
 # =========================
 # LOCAL AI ALGORITHMS
@@ -807,7 +808,7 @@ def get_leaderboard():
             SELECT M.member_id, M.name, M.subcommittee,
             (SELECT COUNT(*) FROM PARTICIPATION P WHERE P.member_id = M.member_id AND P.status='registered') * 10 +
             (SELECT COUNT(*) FROM RESOURCE R WHERE R.added_by = M.member_id) * 20 +
-            (SELECT IFNULL(SUM(download_count), 0) FROM RESOURCE R WHERE R.added_by = M.member_id) * 2
+            (SELECT COALESCE(SUM(download_count), 0) FROM RESOURCE R WHERE R.added_by = M.member_id) * 2
             AS points
             FROM MEMBER M
             ORDER BY points DESC
@@ -1016,10 +1017,11 @@ def create_project():
         cursor.execute("""
             INSERT INTO PROJECT (member_id, title, description, tags, tech_stack, github_link, demo_link)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
+            RETURNING project_id
         """, (data.get('member_id'), data.get('title'), data.get('description'),
               data.get('tags'), data.get('tech_stack'), data.get('github_link'), data.get('demo_link')))
         db.commit()
-        project_id = cursor.lastrowid
+        project_id = cursor.fetchone()['project_id']
         cursor.close(); db.close()
         return jsonify({"message": "Project posted!", "project_id": project_id})
     except Exception as e:

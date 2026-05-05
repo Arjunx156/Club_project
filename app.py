@@ -19,12 +19,10 @@ except ImportError:
 app = Flask(__name__)
 CORS(app)
 
-# DB config — reads from environment variable set in Vercel dashboard
-# Set DATABASE_URL in Vercel: postgresql://postgres:[PASSWORD]@ocvctvycniapdeoukyi.supabase.co:5432/postgres
-DATABASE_URL = os.environ.get(
-    "DATABASE_URL",
-    "postgresql://postgres:Arjun@156@ocvctvycniapdeoukyi.supabase.co:5432/postgres"
-)
+# DB config — reads from DATABASE_URL environment variable
+# In Vercel dashboard: Settings > Environment Variables > add DATABASE_URL
+# Format: postgresql://postgres:[PASSWORD]@db.YOURPROJECTREF.supabase.co:5432/postgres
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
 
 def get_db():
     conn = psycopg2.connect(DATABASE_URL)

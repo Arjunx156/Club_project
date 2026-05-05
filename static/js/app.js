@@ -34,6 +34,13 @@ function setLoginRole(role, el){
   loginRole = role;
   document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
   el.classList.add('active');
+  
+  const emailInput = document.getElementById('loginEmail');
+  if (role === 'core') {
+    emailInput.placeholder = 'admin@orca.club';
+  } else {
+    emailInput.placeholder = 'you@college.edu';
+  }
 }
 
 async function doLogin(){

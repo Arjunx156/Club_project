@@ -142,8 +142,9 @@ body{
 .avatar-admin{background:linear-gradient(135deg,var(--accent3),#fb7185);}
 .avatar-guest{background:linear-gradient(135deg,#334155,#475569);}
 
-.user-info .user-name{font-size:13px;font-weight:600;}
-.user-info .user-role{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+.user-info { flex: 1; min-width: 0; overflow: hidden; }
+.user-info .user-name{font-size:13px;font-weight:600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+.user-info .user-role{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 
 .main{flex:1;margin-left:260px;padding:40px 44px;min-height:100vh;}
 

@@ -494,10 +494,12 @@
 
     <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
-      <div class="sidebar-logo" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
-        <img src="{{ url_for('static', filename='images/orca_logo.png') }}" alt="ORCA Logo"
-          style="height: 36px; mix-blend-mode: lighten; filter: contrast(1.2);">
-        <div class="logo-sub" style="margin-left: 2px; font-size: 11px; letter-spacing: 1px; color: #94a3b8; text-transform: uppercase;">Member Portal</div>
+      <div class="sidebar-logo" style="display: flex; align-items: center; gap: 12px; padding: 0 24px 28px;">
+        <div class="logo-icon">✨</div>
+        <div style="display:flex; flex-direction:column;">
+          <div class="logo-mark">ORCA</div>
+          <div class="logo-sub">Member Portal</div>
+        </div>
       </div>
 
       <nav class="sidebar-nav">

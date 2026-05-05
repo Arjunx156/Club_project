@@ -41,7 +41,7 @@ async function doLogin(){
   const pass  = document.getElementById('loginPass').value;
   const err   = document.getElementById('loginError');
   try{
-    const res  = await fetch('http://127.0.0.1:5000/login',{
+    const res  = await fetch('/login',{
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({email, password:pass})
     });
@@ -138,7 +138,7 @@ function showPage(pageId, navEl){
 // ============================================================
 async function loadEventsFromBackend(){
   try{
-    const res  = await fetch('http://127.0.0.1:5000/events');
+    const res  = await fetch('/events');
     const data = await res.json();
     events = data.map(e => ({
       id:         e.event_id,
@@ -253,7 +253,7 @@ async function confirmRegistration(){
   const email = document.getElementById('regEmail').value.trim();
   if(!name || !email){ notify('⚠️','Fill all fields',''); return; }
   try{
-    const res  = await fetch('http://127.0.0.1:5000/register',{
+    const res  = await fetch('/register',{
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({member_id: currentUser.member_id, event_id: selectedEventId})
     });
@@ -275,7 +275,7 @@ async function confirmRegistration(){
 // ============================================================
 async function loadResourcesFromBackend(){
   try{
-    const res  = await fetch('http://127.0.0.1:5000/resources');
+    const res  = await fetch('/resources');
     const data = await res.json();
     resources = data.map(r => ({
       id:        r.resource_id,
@@ -319,7 +319,7 @@ function filterRes(tag, el){
 async function downloadResource(id){
   const r = resources.find(x => x.id === id);
   if(!r) return;
-  await fetch(`http://127.0.0.1:5000/download/${id}`, {method:'POST'});
+  await fetch(`/download/${id}`, {method:'POST'});
   r.downloads++;
   if(r.link && r.link !== 'N/A' && r.link !== '') window.open(r.link, '_blank');
   notify('⬇️', 'Opening resource', r.name);
@@ -331,7 +331,7 @@ async function downloadResource(id){
 // ============================================================
 async function loadResourceFilters(){
   try{
-    const res = await fetch('http://127.0.0.1:5000/resource_tags');
+    const res = await fetch('/resource_tags');
     if(!res.ok) return;
     const tags = await res.json();
     if(!tags.length) return;
@@ -359,7 +359,7 @@ async function submitResource(){
   const link = document.getElementById('newResLink').value.trim();
   if(!name){ notify('⚠️','Name required',''); return; }
   try{
-    await fetch('http://127.0.0.1:5000/add_resource',{
+    await fetch('/add_resource',{
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({title:name, type:type||'Resource', link, tags:tag, added_by:currentUser.member_id})
     });
@@ -387,7 +387,7 @@ async function submitEvent(){
   const dateOnly = date ? date.split('T')[0] : '';
   const timeOnly = date ? date.split('T')[1] : '00:00';
   try{
-    await fetch('http://127.0.0.1:5000/add_event',{
+    await fetch('/add_event',{
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({title, description:desc, date:dateOnly, time:timeOnly, venue, category:type, seats})
     });
@@ -404,7 +404,7 @@ async function submitEvent(){
 // ============================================================
 async function loadAnnouncements(){
   try{
-    const res  = await fetch('http://127.0.0.1:5000/announcements');
+    const res  = await fetch('/announcements');
     const data = await res.json();
     const c    = document.getElementById('homeAnnouncements');
     if(!data.length){ c.innerHTML = ''; return; }
@@ -430,7 +430,7 @@ async function loadAnnouncements(){
 
 async function deleteAnnouncement(id){
   if(!confirm('Delete this announcement?')) return;
-  await fetch(`http://127.0.0.1:5000/delete_announcement/${id}`, {method:'DELETE'});
+  await fetch(`/delete_announcement/${id}`, {method:'DELETE'});
   await loadAnnouncements();
   notify('🗑️','Announcement deleted','');
 }
@@ -448,7 +448,7 @@ async function updateAnnouncement(id){
   const title   = document.getElementById('newAnnTitle').value.trim();
   const content = document.getElementById('newAnnContent').value.trim();
   if(!title || !content){ notify('⚠️','Fill all fields',''); return; }
-  await fetch(`http://127.0.0.1:5000/update_announcement/${id}`, {
+  await fetch(`/update_announcement/${id}`, {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({title, content})
   });
@@ -465,7 +465,7 @@ async function submitAnnouncement(){
   const content = document.getElementById('newAnnContent').value.trim();
   if(!title || !content){ notify('⚠️','Fill all fields',''); return; }
   try{
-    await fetch('http://127.0.0.1:5000/add_announcement',{
+    await fetch('/add_announcement',{
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({title, content, created_by: currentUser.member_id})
     });
@@ -486,7 +486,7 @@ async function loadMyRegistrations(){
     return;
   }
   try{
-    const res  = await fetch(`http://127.0.0.1:5000/my_registrations/${currentUser.member_id}`);
+    const res  = await fetch(`/my_registrations/${currentUser.member_id}`);
     const data = await res.json();
     const c    = document.getElementById('myRegsContent');
     if(!data.length){
@@ -562,7 +562,7 @@ async function loadMyRegistrations(){
 async function unregisterEvent(eventId){
   if(!confirm('Unregister from this event?')) return;
   try{
-    const res = await fetch('http://127.0.0.1:5000/unregister',{
+    const res = await fetch('/unregister',{
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({member_id: currentUser.member_id, event_id: eventId})
     });
@@ -583,7 +583,7 @@ async function loadProfile(){
     return;
   }
   try{
-    const res = await fetch(`http://127.0.0.1:5000/profile/${currentUser.member_id}`);
+    const res = await fetch(`/profile/${currentUser.member_id}`);
     const m   = await res.json();
     document.getElementById('profileContent').innerHTML = `
       <!-- New Profile Banner Design -->
@@ -637,7 +637,7 @@ async function updateProfile(){
   const bio = document.getElementById('editBio').value;
   const sub = document.getElementById('editSub').value;
   try{
-    await fetch('http://127.0.0.1:5000/update_profile',{
+    await fetch('/update_profile',{
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({member_id: currentUser.member_id, bio, subcommittee: sub})
     });
@@ -655,7 +655,7 @@ async function submitSignup(){
   const msg   = document.getElementById('signupMsg');
   if(!name || !email || !pass){ msg.style.color='var(--danger)'; msg.textContent='Fill all fields.'; msg.style.display='block'; return; }
   try{
-    const res  = await fetch('http://127.0.0.1:5000/request_membership', {
+    const res  = await fetch('/request_membership', {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({name, email, password:pass, year:parseInt(year), subcommittee:sub})
     });
@@ -693,7 +693,7 @@ async function renderAdminPanels(){
   // Pending approvals
   const pendingDiv = document.getElementById('pendingSection');
   try{
-    const pendRes = await fetch('http://127.0.0.1:5000/pending_members');
+    const pendRes = await fetch('/pending_members');
     const pending = await pendRes.json();
     if(pending.length){
       pendingDiv.innerHTML = `<div class="card"><h3 style="font-family:'Outfit',sans-serif;font-weight:700;margin-bottom:16px">🕐 Pending Approvals (${pending.length})</h3>
@@ -708,7 +708,7 @@ async function renderAdminPanels(){
 }
 
 async function approveMember(id){
-  await fetch(`http://127.0.0.1:5000/approve_member/${id}`, {method:'POST'});
+  await fetch(`/approve_member/${id}`, {method:'POST'});
   notify('✅','Member approved','');
   renderAdminPanels();
 }
@@ -716,7 +716,7 @@ async function approveMember(id){
 async function adminDeleteEvent(id){
   if(!confirm('Delete this event and all its registrations?')) return;
   try{
-    await fetch(`http://127.0.0.1:5000/delete_event/${id}`, {method:'DELETE'});
+    await fetch(`/delete_event/${id}`, {method:'DELETE'});
     await loadEventsFromBackend();
     renderAdminPanels();
     notify('🗑️','Event deleted','');
@@ -746,7 +746,7 @@ async function submitEditEvent(id){
   const seats = parseInt(document.getElementById('newEventSeats').value) || 50;
   const desc  = document.getElementById('newEventDesc').value.trim();
   if(!title || !venue){ notify('⚠️','Missing fields',''); return; }
-  await fetch(`http://127.0.0.1:5000/update_event/${id}`, {
+  await fetch(`/update_event/${id}`, {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({
       title, description:desc,
@@ -766,7 +766,7 @@ async function submitEditEvent(id){
 async function adminDeleteResource(id){
   if(!confirm('Delete this resource?')) return;
   try{
-    await fetch(`http://127.0.0.1:5000/delete_resource/${id}`, {method:'DELETE'});
+    await fetch(`/delete_resource/${id}`, {method:'DELETE'});
     await loadResourcesFromBackend();
     renderAdminPanels();
     notify('🗑️','Resource deleted','');
@@ -794,7 +794,7 @@ async function submitEditResource(id){
   const link = document.getElementById('newResLink').value.trim();
   if(!name){ notify('⚠️','Name required',''); return; }
   try{
-    await fetch(`http://127.0.0.1:5000/update_resource/${id}`,{
+    await fetch(`/update_resource/${id}`,{
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({title:name, tags:tag, type, link})
     });
@@ -816,8 +816,8 @@ async function renderAnalytics(){
   c.innerHTML = `<div style="text-align:center;padding:40px;color:var(--muted)">Loading analytics...</div>`;
   try{
     const [aRes, iRes] = await Promise.all([
-      fetch('http://127.0.0.1:5000/analytics'),
-      fetch('http://127.0.0.1:5000/ai/insights')
+      fetch('/analytics'),
+      fetch('/ai/insights')
     ]);
     const a   = await aRes.json();
     const ins = await iRes.json();
@@ -891,7 +891,7 @@ async function loadRecommendations(){
   const c = document.getElementById('homeRecommendations');
   c.innerHTML = `<div style="color:var(--muted);font-size:13px;margin-bottom:16px">⏳ Loading AI recommendations...</div>`;
   try{
-    const res  = await fetch(`http://127.0.0.1:5000/ai/recommendations/${currentUser.member_id}`);
+    const res  = await fetch(`/ai/recommendations/${currentUser.member_id}`);
     const data = await res.json();
     if(!data.events?.length && !data.resources?.length){ c.innerHTML = ''; return; }
     c.innerHTML = `
@@ -916,7 +916,7 @@ async function generateDescription(){
   const btn = document.querySelector('.ai-gen-btn');
   btn.textContent = '⏳ Generating...';
   try{
-    const res  = await fetch('http://127.0.0.1:5000/ai/generate_description',{
+    const res  = await fetch('/ai/generate_description',{
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({title, category:type, venue})
     });
@@ -936,7 +936,7 @@ async function doSearch(){
   const btn = document.querySelector('.search-btn');
   btn.textContent = '⏳ Searching...';
   try{
-    const res  = await fetch('http://127.0.0.1:5000/ai/search',{
+    const res  = await fetch('/ai/search',{
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({query})
     });
@@ -984,7 +984,7 @@ async function sendChat(){
   addChatMessage(msg, 'user');
   const typing = addTypingIndicator();
   try{
-    const res  = await fetch('http://127.0.0.1:5000/ai/chat',{
+    const res  = await fetch('/ai/chat',{
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({message:msg, member_id:currentUser?.member_id})
     });
@@ -1126,7 +1126,7 @@ async function loadDashboardData() {
 
   // Leaderboard
   try{
-    const res = await fetch('http://127.0.0.1:5000/leaderboard');
+    const res = await fetch('/leaderboard');
     const leaders = await res.json();
     const lC = document.getElementById('leaderboardList');
     if(!leaders.length){
@@ -1148,7 +1148,7 @@ async function loadDashboardData() {
 
   // Up Next Event
   try{
-    const myRegsRes = await fetch(`http://127.0.0.1:5000/my_registrations/${currentUser.member_id}`);
+    const myRegsRes = await fetch(`/my_registrations/${currentUser.member_id}`);
     const myRegs = await myRegsRes.json();
     const now = new Date();
     const upcoming = myRegs.filter(r => new Date(r.date + 'T' + r.time) > now && r.status === 'registered')
@@ -1196,7 +1196,7 @@ async function submitFeedback() {
   const review = document.getElementById('feedbackReview').value.trim();
   
   try {
-    const res = await fetch('http://127.0.0.1:5000/submit_feedback', {
+    const res = await fetch('/submit_feedback', {
       method: 'POST', headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({member_id: currentUser.member_id, event_id: feedbackEventId, rating, review})
     });
@@ -1331,7 +1331,7 @@ async function loadProjects(){
   const grid = document.getElementById('projectGrid');
   grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">⏳</div><p>Loading projects...</p></div>`;
   try {
-    const res = await fetch('http://127.0.0.1:5000/projects');
+    const res = await fetch('/projects');
     const projects = await res.json();
     if(!projects.length){
       grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div><p>No projects shared yet. Be the first!</p></div>`;
@@ -1366,7 +1366,7 @@ async function loadProjects(){
 }
 
 function trackView(projectId) {
-  fetch(`http://127.0.0.1:5000/projects/${projectId}/view`, { method: 'POST' });
+  fetch(`/projects/${projectId}/view`, { method: 'POST' });
 }
 
 async function submitProject(){
@@ -1379,7 +1379,7 @@ async function submitProject(){
   const demo  = document.getElementById('projDemo').value.trim();
   
   if(!title || !desc){ showNotification('⚠️','Missing fields','Title and description are required.'); return; }
-  await fetch('http://127.0.0.1:5000/projects', {
+  await fetch('/projects', {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify({ 
@@ -1396,7 +1396,7 @@ async function submitProject(){
 
 async function toggleLike(projectId){
   if(!currentUser){ showNotification('⚠️','Login required','Please log in to like projects.'); return; }
-  const res  = await fetch(`http://127.0.0.1:5000/projects/${projectId}/like`, {
+  const res  = await fetch(`/projects/${projectId}/like`, {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify({ member_id: currentUser.id })
@@ -1410,7 +1410,7 @@ async function toggleLike(projectId){
 
 async function deleteProject(projectId){
   if(!currentUser) return;
-  await fetch(`http://127.0.0.1:5000/projects/${projectId}`, {
+  await fetch(`/projects/${projectId}`, {
     method: 'DELETE',
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify({ member_id: currentUser.id })
@@ -1426,7 +1426,7 @@ async function loadTeamRequests(){
   const grid = document.getElementById('teamGrid');
   grid.innerHTML = `<div class="empty-state"><div class="empty-icon">⏳</div><p>Loading requests...</p></div>`;
   try {
-    const res = await fetch('http://127.0.0.1:5000/team_requests');
+    const res = await fetch('/team_requests');
     const reqs = await res.json();
     if(!reqs.length){
       grid.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><p>No team requests yet. Post one to get started!</p></div>`;
@@ -1464,7 +1464,7 @@ async function loadTeamRequests(){
 
 async function toggleTeamStatus(requestId){
   if(!currentUser) return;
-  await fetch(`http://127.0.0.1:5000/team_requests/${requestId}/status`, {
+  await fetch(`/team_requests/${requestId}/status`, {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify({ member_id: currentUser.id })
@@ -1481,7 +1481,7 @@ async function submitTeamRequest(){
   const desc    = document.getElementById('teamDesc').value.trim();
   const contact = document.getElementById('teamContact').value.trim();
   if(!title || !desc){ showNotification('⚠️','Missing fields','Title and description are required.'); return; }
-  await fetch('http://127.0.0.1:5000/team_requests', {
+  await fetch('/team_requests', {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify({ 
@@ -1498,7 +1498,7 @@ async function submitTeamRequest(){
 
 async function deleteTeamRequest(requestId){
   if(!currentUser) return;
-  await fetch(`http://127.0.0.1:5000/team_requests/${requestId}`, {
+  await fetch(`/team_requests/${requestId}`, {
     method: 'DELETE',
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify({ member_id: currentUser.id })

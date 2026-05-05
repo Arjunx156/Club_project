@@ -12,15 +12,10 @@ let uploadedFiles = [];
 // INIT
 // ============================================================
 window.onload = async () => {
-  await loadEventsFromBackend();
-  await loadResourcesFromBackend();
-  await loadResourceFilters();
-  await loadAnnouncements();
-  updateStats();
-  
   const lp = document.getElementById('landing-page');
   const dl = document.getElementById('dashboard-layout');
-  
+
+  // ── Restore session FIRST (before any async) so there's no flash ──
   const savedUser = localStorage.getItem('currentUser');
   if (savedUser) {
     currentUser = JSON.parse(savedUser);
@@ -28,14 +23,27 @@ window.onload = async () => {
     if(lp) lp.style.display = 'none';
     if(dl) dl.style.display = 'flex';
     showPage('home');
-    loadDashboardData();
-    await loadRecommendations();
-    await loadAnnouncements(); 
   } else {
     if(lp) lp.style.display = 'block';
     if(dl) dl.style.display = 'none';
   }
+
+  // ── Then load data in parallel ──
+  await Promise.all([
+    loadEventsFromBackend(),
+    loadResourcesFromBackend(),
+    loadResourceFilters(),
+    loadAnnouncements()
+  ]);
+  updateStats();
+
+  if (currentUser) {
+    loadDashboardData();
+    await loadRecommendations();
+    await loadAnnouncements(); // reload so admin buttons appear
+  }
 };
+
 
 // ============================================================
 // AUTH

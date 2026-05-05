@@ -559,7 +559,7 @@ body{
 .search-results-title{font-size:13px;color:var(--accent);font-weight:600;margin-bottom:12px;}
 
 .chatbot-btn{
-  position:fixed;bottom:28px;left:28px;
+  position:fixed;bottom:28px;right:28px;
   width:58px;height:58px;
   background:linear-gradient(135deg,var(--accent),var(--accent2));
   border-radius:50%;border:none;cursor:pointer;
@@ -577,7 +577,7 @@ body{
 }
 
 .chatbot-panel{
-  position:fixed;bottom:100px;left:28px;
+  position:fixed;bottom:100px;right:28px;
   width:360px;height:520px;
   background:#09091a;border:1px solid rgba(99,102,241,0.2);
   border-radius:20px;z-index:500;

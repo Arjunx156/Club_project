@@ -45,7 +45,7 @@ body{
   66%{transform:translate(-20px,20px) scale(0.94);}
 }
 
-.layout{display:flex;min-height:100vh;position:relative;z-index:1;zoom:0.8;}
+.layout{display:flex;min-height:125vh;position:relative;z-index:1;zoom:0.8;}
 
 .sidebar{
   width:260px;
@@ -56,7 +56,7 @@ body{
   flex-direction:column;
   padding:28px 0;
   position:fixed;
-  height:100vh;
+  height:125vh;
   top:0;left:0;
   z-index:100;
   transition:transform 0.3s cubic-bezier(0.16,1,0.3,1);
@@ -144,7 +144,7 @@ body{
 .user-info .user-name{font-size:13px;font-weight:600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 .user-info .user-role{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 
-.main{flex:1;margin-left:260px;padding:40px 44px;min-height:100vh;}
+.main{flex:1;margin-left:260px;padding:40px 44px;min-height:125vh;}
 
 .page{display:none;animation:pageIn 0.35s ease;}
 .page.active{display:block;}

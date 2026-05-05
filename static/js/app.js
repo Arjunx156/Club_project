@@ -36,10 +36,13 @@ function setLoginRole(role, el){
   el.classList.add('active');
   
   const emailInput = document.getElementById('loginEmail');
+  const subtitle = document.getElementById('authSubtitle');
   if (role === 'core') {
     emailInput.placeholder = 'admin@orca.club';
+    if(subtitle) subtitle.innerText = 'Sign in to access your admin dashboard';
   } else {
     emailInput.placeholder = 'you@college.edu';
+    if(subtitle) subtitle.innerText = 'Sign in to access your member portal';
   }
 }
 

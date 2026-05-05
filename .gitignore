@@ -3,24 +3,11 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
-
-# Supabase CLI binary (do not commit)
-supabase-cli/
-supabase/.temp/
-
 .Python
 *.egg
 *.egg-info/
 dist/
 build/
-eggs/
-parts/
-var/
-sdist/
-develop-eggs/
-.installed.cfg
-lib/
-lib64/
 
 # Virtual environments
 venv/
@@ -54,3 +41,14 @@ instance/
 
 # Node modules (if any)
 node_modules/
+
+# Supabase CLI binary (never commit)
+supabase-cli/
+supabase/.temp/
+supabase/
+
+# One-off migration scripts — NOT deployed, kept for reference only
+# scripts/ is intentionally committed for documentation purposes
+
+# Temp
+.temp/

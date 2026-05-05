@@ -1,88 +1,59 @@
 # ORCA — Odyssey Research & Club of AI
 
-> **The official web portal for the AI & Data Science Club**
+A full-stack member portal for the AI & Data Science club, built with Flask and PostgreSQL (Supabase), deployed on Vercel.
 
-ORCA is a full-stack Flask web application that serves as the central hub for the AI & DS Club. It features event management, project tracking, leaderboards, user authentication, and more.
-
----
-
-## 🛠️ Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Backend | Python / Flask |
-| Database | MySQL |
-| Frontend | HTML, CSS, JavaScript (Vanilla) |
-| Authentication | Flask-Login + bcrypt |
-
----
-
-## ⚙️ Setup Instructions
-
-### 1. Clone the repository
-```bash
-git clone https://github.com/<your-username>/Club_project.git
-cd Club_project
-```
-
-### 2. Create and activate a virtual environment
-```bash
-python -m venv venv
-# Windows
-venv\Scripts\activate
-# Linux/Mac
-source venv/bin/activate
-```
-
-### 3. Install dependencies
-```bash
-pip install flask flask-login flask-mysqldb bcrypt
-```
-
-### 4. Set up the database
-- Import `Database.sql` into your MySQL server:
-```bash
-mysql -u root -p < Database.sql
-```
-
-### 5. Configure environment variables
-Create a `.env` file (do **not** commit this):
-```
-MYSQL_HOST=localhost
-MYSQL_USER=root
-MYSQL_PASSWORD=yourpassword
-MYSQL_DB=club_db
-SECRET_KEY=your-secret-key
-```
-
-### 6. Run the app
-```bash
-python app.py
-```
-Visit `http://localhost:5000` in your browser.
-
----
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 Club_project/
-├── app.py              # Main Flask application
-├── Database.sql        # MySQL schema and seed data
-├── static/             # CSS, JS, images
-├── templates/          # Jinja2 HTML templates
-└── README.md
+├── app.py              # Flask backend — all API routes + frontend serving
+├── requirements.txt    # Python dependencies
+├── vercel.json         # Vercel deployment configuration
+│
+├── static/
+│   ├── css/style.css   # All styles
+│   ├── js/app.js       # All frontend logic
+│   └── images/         # Static assets (logo etc.)
+│
+├── templates/
+│   └── index.html      # Single-page app shell
+│
+├── db/
+│   ├── schema.sql          # Full database schema
+│   └── setup_new_tables.sql # Migration for newer tables (projects, teams, feedback)
+│
+└── scripts/            # One-off utility scripts used during migration (not deployed)
 ```
 
----
+## Stack
 
-## 🤝 Contributing
+| Layer | Technology |
+|---|---|
+| Backend | Flask (Python) |
+| Database | Supabase (PostgreSQL) via psycopg2 |
+| Frontend | Vanilla HTML/CSS/JS (SPA) |
+| Hosting | Vercel (Serverless Python) |
+| AI | Google Gemini 2.5 Flash (with local fallback) |
 
-1. Fork the repo
-2. Create a feature branch: `git checkout -b feature/my-feature`
-3. Commit your changes: `git commit -m "Add my feature"`
-4. Push and open a Pull Request
+## Deployment
 
----
+**Vercel Environment Variables required:**
 
-*Built with ❤️ by the AI & DS Club Team*
+| Variable | Description |
+|---|---|
+| `DATABASE_URL` | Supabase Transaction Pooler connection string |
+| `GEMINI_API_KEY` | Google AI API key for chatbot |
+
+**Database URL format:**
+```
+postgresql://postgres.<project-ref>:<password>@aws-1-ap-southeast-2.pooler.supabase.com:6543/postgres
+```
+
+## Running Locally
+
+```bash
+pip install -r requirements.txt
+python app.py
+```
+
+App starts at `http://localhost:5000`.

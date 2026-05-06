@@ -600,8 +600,8 @@ def ai_chat():
                 return jsonify({"response": response.text.strip()})
             except Exception as e:
                 print(f"GenAI Chat Error: {e}")
-                # Fallback to explicit error message so the user knows exactly why it's not fully functional
-                return jsonify({"response": "My AI brain isn't fully connected right now. Please ensure a valid `GEMINI_API_KEY` is configured in Vercel to unlock my full chatbot capabilities! 🔧"})
+                # Fallback to explicit error message including the exact error string for debugging
+                return jsonify({"response": f"My AI brain isn't fully connected right now. Error details: {str(e)}"})
 
         # Rule-based fallback if GenAI isn't even initialized (no API key locally)
         return jsonify({"response": "I'm running in basic mode because the `GEMINI_API_KEY` is not set. Please set it in Vercel to unlock my full AI chatbot capabilities! 🧠"})

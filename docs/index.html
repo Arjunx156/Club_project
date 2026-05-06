@@ -35,6 +35,8 @@
             --syn-str: #5a6b5a;
         }
 
+        html { scroll-behavior: smooth; }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
@@ -207,6 +209,32 @@
             z-index: 1000;
         }
         #theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            nav {
+                position: relative;
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                padding: 4rem 1.5rem 1.5rem 1.5rem;
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 1.5rem;
+            }
+            .nav-group { margin-bottom: 0; }
+            main {
+                margin-left: 0;
+                padding: 2rem 1.5rem;
+            }
+            #theme-toggle {
+                top: 1rem;
+                right: 1rem;
+                background: var(--bg-color);
+            }
+        }
 
     </style>
 </head>

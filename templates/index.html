@@ -257,12 +257,15 @@
       </div>
       <div class="form-group">
         <label class="form-label">Password</label>
-        <input class="form-input" id="loginPass" type="password" placeholder="&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;">
+        <input class="form-input" id="loginPass" type="password"
+          placeholder="&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;&#x2022;">
       </div>
       <div id="loginError" style="color:var(--danger);font-size:13px;margin-bottom:12px;display:none;"></div>
-      <button class="btn btn-primary" style="width:100%;padding:14px;font-size:15px;border-radius:12px;" onclick="doLogin()">Sign In</button>
+      <button class="btn btn-primary" style="width:100%;padding:14px;font-size:15px;border-radius:12px;"
+        onclick="doLogin()">Sign In</button>
       <p style="text-align:center;margin-top:20px;color:var(--muted);font-size:12px;">
-        New member? <span style="color:var(--accent);cursor:pointer;font-weight:600;" onclick="closeLogin();openModal('signupModal')">Request Access &rarr;</span>
+        New member? <span style="color:var(--accent);cursor:pointer;font-weight:600;"
+          onclick="closeLogin();openModal('signupModal')">Request Access &rarr;</span>
       </p>
     </div>
   </div>
@@ -276,8 +279,12 @@
         <div class="auth-brand-content" style="padding: 0 20px;">
           <img src="{{ url_for('static', filename='images/orca_logo.png') }}" alt="ORCA Logo"
             style="height: 56px; margin-bottom: 48px; mix-blend-mode: screen; opacity: 0.95;">
-          <h2 style="font-weight: 500; font-size: 32px; letter-spacing: -0.5px; margin-bottom: 20px; color: #ffffff; background: none; -webkit-text-fill-color: initial;">Odyssey Research & Club of AI</h2>
-          <p style="font-size: 16px; line-height: 1.8; color: var(--muted2); font-weight: 300; max-width: 320px; margin: 0 auto;">Join the premier community for builders, researchers, and tech enthusiasts in AI and Data Science.</p>
+          <h2
+            style="font-weight: 500; font-size: 32px; letter-spacing: -0.5px; margin-bottom: 20px; color: #ffffff; background: none; -webkit-text-fill-color: initial;">
+            Odyssey Research & Club of AI</h2>
+          <p
+            style="font-size: 16px; line-height: 1.8; color: var(--muted2); font-weight: 300; max-width: 320px; margin: 0 auto;">
+            Join the premier community for builders, researchers, and tech enthusiasts in AI and Data Science.</p>
         </div>
       </div>
       <div class="auth-form-container">
@@ -669,8 +676,8 @@
 
       <!-- AI SEARCH -->
       <div id="search" class="page">
-        <div class="page-title">AI Search</div>
-        <div class="page-subtitle">Search events and resourcses using natural language</div>
+        <div class="page-title">Search</div>
+        <div class="page-subtitle">Search events and resourcses</div>
         <div class="search-bar">
           <input class="search-input" id="searchInput"
             placeholder="e.g. I want to learn deep learning, show me NLP events..."

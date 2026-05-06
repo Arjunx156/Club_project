@@ -1023,21 +1023,27 @@ function toggleChatbot() {
   document.getElementById('chatbotPanel').classList.toggle('open');
 }
 
+let chatHistory = [];
+
 async function sendChat() {
   const input = document.getElementById('chatInput');
   const msg = input.value.trim();
   if (!msg) return;
   input.value = '';
   addChatMessage(msg, 'user');
+  chatHistory.push({ role: 'user', content: msg });
+  
   const typing = addTypingIndicator();
   try {
     const res = await fetch('/ai/chat', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: msg, member_id: currentUser?.member_id })
+      body: JSON.stringify({ message: msg, history: chatHistory, member_id: currentUser?.member_id })
     });
     const data = await res.json();
     typing.remove();
+    
     addChatMessage(data.response, 'bot');
+    chatHistory.push({ role: 'model', content: data.response });
   } catch (e) {
     typing.remove();
     addChatMessage('Sorry, I encountered an error. Please try again.', 'bot');

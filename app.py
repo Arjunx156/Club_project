@@ -568,6 +568,8 @@ def ai_chat():
         user_message = data.get('message', '').lower()
         member_id = data.get('member_id')
         
+        history = data.get('history', [])
+        
         if has_genai:
             try:
                 db = get_db()
@@ -582,7 +584,14 @@ def ai_chat():
                 events_text = "\\n".join([f"- {e['title']} ({e['category']}) on {e['date']} at {e['venue']}" for e in events])
                 resources_text = "\\n".join([f"- {r['title']} ({r['tags']})" for r in resources])
                 
-                prompt = f"You are the AI & DS Club assistant. Be concise (2-3 sentences max) and use emojis. \\nEVENTS: {events_text} \\nRESOURCES: {resources_text} \\nUser asks: {user_message}"
+                # Format recent history to give the bot context
+                history_text = ""
+                if history:
+                    # keep last 6 turns to avoid massive prompts
+                    recent_hist = history[-6:]
+                    history_text = "\\n\\nConversation History:\\n" + "\\n".join([f"{m['role'].upper()}: {m['content']}" for m in recent_hist])
+                
+                prompt = f"You are the AI & DS Club assistant. Be concise (2-3 sentences max) and use emojis. \\nEVENTS: {events_text} \\nRESOURCES: {resources_text} {history_text}\\n\\nUSER: {user_message}"
                 
                 response = genai_client.models.generate_content(
                     model='gemini-2.5-flash',
@@ -591,20 +600,12 @@ def ai_chat():
                 return jsonify({"response": response.text.strip()})
             except Exception as e:
                 print(f"GenAI Chat Error: {e}")
-                # Fallback to rule-based on exception
-                pass
+                # Fallback to explicit error message so the user knows exactly why it's not fully functional
+                return jsonify({"response": "My AI brain isn't fully connected right now. Please ensure a valid `GEMINI_API_KEY` is configured in Vercel to unlock my full chatbot capabilities! 🔧"})
 
-        # Rule-based fallback
-        if any(w in user_message for w in ['event', 'upcoming', 'when', 'next']):
-            return jsonify({"response": "You can check out upcoming events like Workshops and Hackathons in the Events tab! Or look at the calendar on the dashboard."})
-        elif any(w in user_message for w in ['resource', 'learn', 'download', 'pdf']):
-            return jsonify({"response": "We have a curated Resource Library with ML, DL, and Data Science materials. Head over to the Resources tab to explore and download!"})
-        elif any(w in user_message for w in ['register', 'waitlist', 'status', 'my']):
-            return jsonify({"response": "You can view your confirmed registrations and waitlist status in the 'My Registrations' section."})
-        elif any(w in user_message for w in ['hi', 'hello', 'hey']):
-            return jsonify({"response": "Hello! 👋 I'm the Club AI Assistant. Ask me about events, resources, or your registrations."})
-        else:
-            return jsonify({"response": "I'm a simple AI assistant right now! Try asking me about 'upcoming events', 'resources to learn', or 'my registrations'."})
+        # Rule-based fallback if GenAI isn't even initialized (no API key locally)
+        return jsonify({"response": "I'm running in basic mode because the `GEMINI_API_KEY` is not set. Please set it in Vercel to unlock my full AI chatbot capabilities! 🧠"})
+        
     except Exception as e:
         print(f"Chatbot endpoint error: {e}")
         return jsonify({"response": f"Sorry, I encountered an error: {str(e)}"}), 500

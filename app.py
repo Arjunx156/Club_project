@@ -569,38 +569,44 @@ def ai_chat():
         member_id = data.get('member_id')
         
         if has_genai:
-            db = get_db()
-            cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-            cursor.execute("SELECT title, date, venue, category, seats FROM EVENT")
-            events = cursor.fetchall()
-            cursor.execute("SELECT title, tags, download_count FROM RESOURCE")
-            resources = cursor.fetchall()
-            cursor.close()
-            db.close()
-            
-            events_text = "\\n".join([f"- {e['title']} ({e['category']}) on {e['date']} at {e['venue']}" for e in events])
-            resources_text = "\\n".join([f"- {r['title']} ({r['tags']})" for r in resources])
-            
-            prompt = f"You are the AI & DS Club assistant. Be concise (2-3 sentences max) and use emojis. \\nEVENTS: {events_text} \\nRESOURCES: {resources_text} \\nUser asks: {user_message}"
-            
-            response = genai_client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=prompt
-            )
-            return jsonify({"response": response.text.strip()})
+            try:
+                db = get_db()
+                cursor = db.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+                cursor.execute("SELECT title, date, venue, category, seats FROM EVENT")
+                events = cursor.fetchall()
+                cursor.execute("SELECT title, tags, download_count FROM RESOURCE")
+                resources = cursor.fetchall()
+                cursor.close()
+                db.close()
+                
+                events_text = "\\n".join([f"- {e['title']} ({e['category']}) on {e['date']} at {e['venue']}" for e in events])
+                resources_text = "\\n".join([f"- {r['title']} ({r['tags']})" for r in resources])
+                
+                prompt = f"You are the AI & DS Club assistant. Be concise (2-3 sentences max) and use emojis. \\nEVENTS: {events_text} \\nRESOURCES: {resources_text} \\nUser asks: {user_message}"
+                
+                response = genai_client.models.generate_content(
+                    model='gemini-2.5-flash',
+                    contents=prompt
+                )
+                return jsonify({"response": response.text.strip()})
+            except Exception as e:
+                print(f"GenAI Chat Error: {e}")
+                # Fallback to rule-based on exception
+                pass
+
+        # Rule-based fallback
+        if any(w in user_message for w in ['event', 'upcoming', 'when', 'next']):
+            return jsonify({"response": "You can check out upcoming events like Workshops and Hackathons in the Events tab! Or look at the calendar on the dashboard."})
+        elif any(w in user_message for w in ['resource', 'learn', 'download', 'pdf']):
+            return jsonify({"response": "We have a curated Resource Library with ML, DL, and Data Science materials. Head over to the Resources tab to explore and download!"})
+        elif any(w in user_message for w in ['register', 'waitlist', 'status', 'my']):
+            return jsonify({"response": "You can view your confirmed registrations and waitlist status in the 'My Registrations' section."})
+        elif any(w in user_message for w in ['hi', 'hello', 'hey']):
+            return jsonify({"response": "Hello! 👋 I'm the Club AI Assistant. Ask me about events, resources, or your registrations."})
         else:
-            # Rule-based fallback
-            if any(w in user_message for w in ['event', 'upcoming', 'when', 'next']):
-                return jsonify({"response": "You can check out upcoming events like Workshops and Hackathons in the Events tab! Or look at the calendar on the dashboard."})
-            elif any(w in user_message for w in ['resource', 'learn', 'download', 'pdf']):
-                return jsonify({"response": "We have a curated Resource Library with ML, DL, and Data Science materials. Head over to the Resources tab to explore and download!"})
-            elif any(w in user_message for w in ['register', 'waitlist', 'status', 'my']):
-                return jsonify({"response": "You can view your confirmed registrations and waitlist status in the 'My Registrations' section."})
-            elif any(w in user_message for w in ['hi', 'hello', 'hey']):
-                return jsonify({"response": "Hello! 👋 I'm the Club AI Assistant. Ask me about events, resources, or your registrations."})
-            else:
-                return jsonify({"response": "I'm a simple AI assistant right now! Try asking me about 'upcoming events', 'resources to learn', or 'my registrations'."})
+            return jsonify({"response": "I'm a simple AI assistant right now! Try asking me about 'upcoming events', 'resources to learn', or 'my registrations'."})
     except Exception as e:
+        print(f"Chatbot endpoint error: {e}")
         return jsonify({"response": f"Sorry, I encountered an error: {str(e)}"}), 500
 
 # =========================
@@ -614,19 +620,27 @@ def generate_description():
         category = data.get('category', 'Session')
         venue = data.get('venue', 'Campus')
 
+        description = ""
         if has_genai:
-            prompt = f"Write a short, engaging 2-3 sentence event description for an AI & DS Club event. Title: {title}. Type: {category}. Venue: {venue}. No bullet points. No formatting."
-            response = genai_client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=prompt
-            )
-            description = response.text.strip()
-        else:
+            try:
+                prompt = f"Write a short, engaging 2-3 sentence event description for an AI & DS Club event. Title: {title}. Type: {category}. Venue: {venue}. No bullet points. No formatting."
+                response = genai_client.models.generate_content(
+                    model='gemini-2.5-flash',
+                    contents=prompt
+                )
+                description = response.text.strip()
+            except Exception as e:
+                print(f"GenAI Description Error: {e}")
+                
+        if not description:
             description = f"Join us for an exciting {category} on '{title}'! This session will be held at {venue}. It is a fantastic opportunity to build your skills, network with peers, and learn from experts in the community. Don't miss out!"
         
         return jsonify({"description": description})
     except Exception as e:
-        return jsonify({"description": ""}), 500
+        print(f"Description endpoint error: {e}")
+        # Always return a valid response rather than 500 to prevent silent failures on frontend
+        fallback = f"Join us for an exciting {category} on '{title}'! This session will be held at {venue}. It is a fantastic opportunity to build your skills, network with peers, and learn from experts in the community. Don't miss out!"
+        return jsonify({"description": fallback})
 
 # =========================
 # AI — RECOMMENDATIONS (LOCAL ALGORITHM)

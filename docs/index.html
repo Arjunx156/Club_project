@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORCA — Architecture Specification</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0e0d0b;
+            --text-color: #e0deda;
+            --accent: #c8a96e;
+            --sidebar-w: 200px;
+            --muted: #6b6a68;
+            --code-bg: #151412;
+            --border: #2a2825;
+            --card-bg: #151412;
+            
+            /* Syntax Highlighting */
+            --syn-kw: #c8a96e;  /* Amber */
+            --syn-str: #8b9a8b; /* Muted Green */
+            --syn-num: #b08060; /* Muted Rust */
+        }
+        
+        [data-theme="light"] {
+            --bg-color: #f4f1ea;
+            --text-color: #1a1a1a;
+            --accent: #b08c4e;
+            --muted: #888580;
+            --code-bg: #e9e6df;
+            --border: #d4d0c7;
+            --card-bg: #e9e6df;
+            --syn-str: #5a6b5a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'EB Garamond', serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            font-size: 1.15rem;
+            display: flex;
+            transition: background 0s, color 0s;
+        }
+
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* Scroll Progress */
+        #scroll-progress {
+            position: fixed;
+            top: 0; left: 0; height: 2px;
+            background: var(--accent);
+            width: 0%;
+            z-index: 1000;
+        }
+
+        /* Sidebar Navigation */
+        nav {
+            width: var(--sidebar-w);
+            position: fixed;
+            height: 100vh;
+            border-right: 1px solid var(--border);
+            padding: 2rem 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            overflow-y: auto;
+        }
+
+        nav a {
+            color: var(--muted);
+            white-space: nowrap;
+            display: block;
+            margin-bottom: 0.5rem;
+            transition: color 0.1s;
+        }
+        nav a.active { color: var(--accent); }
+        nav a:hover { color: var(--accent); text-decoration: none; }
+
+        .nav-group { margin-bottom: 1rem; }
+        .nav-label { 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em; 
+            color: var(--text-color); 
+            margin-bottom: 0.5rem; 
+            font-weight: 700;
+        }
+
+        /* Main Content */
+        main {
+            margin-left: var(--sidebar-w);
+            max-width: 800px;
+            padding: 4rem 2rem 8rem 4rem;
+        }
+
+        h1 { 
+            font-family: 'JetBrains Mono', monospace; 
+            font-size: 1.5rem; 
+            font-weight: 700; 
+            margin-bottom: 2rem; 
+            color: var(--accent); 
+        }
+        
+        h2 { 
+            font-family: 'JetBrains Mono', monospace; 
+            font-size: 1.2rem; 
+            margin: 4rem 0 1.5rem 0; 
+            font-weight: normal; 
+        }
+        
+        p { margin-bottom: 1.5rem; }
+
+        /* Abstract */
+        .abstract {
+            border-left: 1px solid var(--accent);
+            padding-left: 1.5rem;
+            margin-bottom: 3rem;
+            font-style: italic;
+        }
+
+        /* Math ASCII */
+        .math {
+            font-family: 'JetBrains Mono', monospace;
+            background: transparent;
+            color: var(--text-color);
+            padding: 1rem;
+            margin: 1.5rem 0;
+            white-space: pre;
+            line-height: 1.2;
+            font-size: 0.85rem;
+        }
+
+        /* Code Blocks */
+        pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            color: var(--text-color);
+        }
+        code { font-family: 'JetBrains Mono', monospace; font-size: 0.85em; }
+        
+        .k { color: var(--syn-kw); } 
+        .s { color: var(--syn-str); } 
+        .n { color: var(--syn-num); } 
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+        }
+        th, td {
+            text-align: left;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+        th { color: var(--accent); font-weight: normal; }
+
+        /* Cards Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .card {
+            border: 1px solid var(--border);
+            padding: 1.25rem;
+            background: var(--card-bg);
+        }
+        .card-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+        .card-body {
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        /* Theme Toggle */
+        #theme-toggle {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            padding: 0.25rem 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            cursor: pointer;
+            z-index: 1000;
+        }
+        #theme-toggle:hover { color: var(--accent); border-color: var(--accent); }
+
+    </style>
+</head>
+<body>
+
+    <div id="scroll-progress"></div>
+    <button id="theme-toggle">LIGHT MODE</button>
+
+    <nav>
+        <div class="nav-group">
+            <div class="nav-label">Overview</div>
+            <a href="#abstract">Abstract</a>
+        </div>
+        <div class="nav-group">
+            <div class="nav-label">Architecture</div>
+            <a href="#s1">§1. Data Flow</a>
+            <a href="#s2">§2. State Resolution</a>
+            <a href="#s3">§3. Intelligence</a>
+            <a href="#s4">§4. Complexity</a>
+            <a href="#s5">§5. Infrastructure</a>
+        </div>
+    </nav>
+
+    <main>
+        <h1>ORCA Specification</h1>
+        
+        <div class="abstract" id="abstract">
+            ORCA (Odyssey Research & Club of AI) is a monolithic portal supporting member authentication, event registration, and AI integration. We abandoned microservices. State lives in PostgreSQL via Supabase. Compute is serverless Flask. The system is designed to be fully synchronous and predictable, handling constrained payloads without complex distribution layers.
+        </div>
+
+        <h2 id="s1">§1. Data Flow & Monolith</h2>
+        <p>The architecture is exactly one tier. The frontend is vanilla HTML and JavaScript served directly by a Flask monolith on Vercel. We do not use React. We do not use Webpack. The DOM is manipulated directly. This yields zero build times and zero client-side hydration overhead.</p>
+        <p>State synchronization happens exclusively at the API boundary. When a user requests to join a waitlist, the client issues an XHR POST, and the server executes a parameterized SQL transaction against PostgreSQL. The schema is normalized; we do not denormalize event counts. Instead, we query aggregates on read. This trades a slight read latency penalty for absolute write consistency.</p>
+
+        <h2 id="s2">§2. State Resolution & Constraints</h2>
+        <p>Event registration is a hard constraint problem. Each event has a scalar capacity <code><span class="n">C</span></code>. A user is either registered, waitlisted, or unregistered. The state transition must be atomic to prevent overbooking and race conditions under concurrent load.</p>
+        <p>We implemented a deterministic status resolution. When capacity is exceeded, the state flag transitions to a waitlist status based purely on the insertion timestamp. There is no background worker. Promotion off the waitlist happens eagerly at the moment of cancellation via a transaction block in the Flask handler.</p>
+
+<div class="math">
+P(promotion) = 
+  if rank <= C - active_registrations:
+      <span class="n">1.0</span>
+  else:
+      <span class="n">0.0</span>
+
+where rank = position(timestamp) in {t_1, t_2, ... t_N}
+</div>
+
+        <h2 id="s3">§3. Intelligence Integration</h2>
+        <p>The AI assistant is stateless. Every prompt submitted by the user is packaged with exactly two pieces of context: the user's club role and the current route's semantic footprint. We use Google Gemini 2.5 Flash as the reasoning engine. We do not maintain conversational memory on the server. The client holds the transcript and replays the window on each request.</p>
+        <p>This approach limits context length to the model's token limit but eliminates database roundtrips for chat history. The prompt engineering is severe. We instruct the model to return raw JSON or bare text. No markdown formatting unless explicitly requested. This keeps parsing robust and prevents client-side rendering vulnerabilities.</p>
+
+<pre><code><span class="k">def</span> generate_response(prompt, context):
+    payload <span class="k">=</span> {
+        <span class="s">"model"</span>: <span class="s">"gemini-2.5-flash"</span>,
+        <span class="s">"contents"</span>: [prompt, context],
+        <span class="s">"generationConfig"</span>: { <span class="s">"temperature"</span>: <span class="n">0.1</span> }
+    }
+    <span class="k">return</span> execute_inference(payload)</code></pre>
+
+        <h2 id="s4">§4. Computational Complexity</h2>
+        <p>We optimize for strict upper bounds on execution time. The serverless environment penalizes long-running tasks. Below is the complexity matrix for critical path operations.</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Algorithm</th>
+                    <th>Time Complexity</th>
+                    <th>Reference</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Waitlist Insertion</td>
+                    <td>O(1)</td>
+                    <td><code>app.py:register_event</code></td>
+                </tr>
+                <tr>
+                    <td>Status Resolution</td>
+                    <td>O(N log N)</td>
+                    <td><code>db/schema.sql</code></td>
+                </tr>
+                <tr>
+                    <td>Semantic Context Fetch</td>
+                    <td>O(1)</td>
+                    <td><code>static/js/app.js</code></td>
+                </tr>
+                <tr>
+                    <td>AI Payload Embedding</td>
+                    <td>O(L²)</td>
+                    <td><code>Gemini API</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 id="s5">§5. Infrastructure & Phasing</h2>
+        <p>Deployment is deterministic via Vercel. The WSGI entrypoint configures routing dynamically based on <code>vercel.json</code>. The environment footprint is minimal: connection strings and API keys. Connection pooling is handled by Supabase at the edge (TCP port 6543) because Vercel serverless functions do not persist database connections across invocations.</p>
+
+        <div class="grid">
+            <div class="card">
+                <div class="card-title">Phase 1: Persistence</div>
+                <p class="card-body">Supabase PostgreSQL integration. Transaction pooler configuration. JWT session boundaries and strict RBAC enforcement.</p>
+            </div>
+            <div class="card">
+                <div class="card-title">Phase 2: Constraints</div>
+                <p class="card-body">Waitlist queuing logic. Capacity constraints resolution. UI status reflection and state synchronization.</p>
+            </div>
+            <div class="card">
+                <div class="card-title">Phase 3: Intelligence</div>
+                <p class="card-body">Gemini integration via Flash API. Semantic context injection. Stateless token processing and JSON extraction.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Theme Toggle
+        const toggleBtn = document.getElementById('theme-toggle');
+        const root = document.documentElement;
+
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        root.setAttribute('data-theme', currentTheme);
+        toggleBtn.textContent = currentTheme === 'dark' ? 'LIGHT MODE' : 'DARK MODE';
+
+        toggleBtn.addEventListener('click', () => {
+            const newTheme = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            toggleBtn.textContent = newTheme === 'dark' ? 'LIGHT MODE' : 'DARK MODE';
+        });
+
+        // Scroll Progress
+        const progressBar = document.getElementById('scroll-progress');
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            progressBar.style.width = scrolled + '%';
+        });
+
+        // Intersection Observer for Sidebar
+        const sections = document.querySelectorAll('h2[id], div[id="abstract"]');
+        const navLinks = document.querySelectorAll('nav a');
+
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.5
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    navLinks.forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === '#' + entry.target.id) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => observer.observe(section));
+    </script>
+</body>
+</html>

@@ -1,7 +1,5 @@
 # ORCA — Odyssey Research & Club of AI
 
-📖 **[Read the Official Architecture Specification](https://arjunx156.github.io/Club_project/)**
-
 A full-stack member portal for the AI & Data Science club, built with Flask and PostgreSQL (Supabase), deployed on Vercel.
 
 ## Project Structure
